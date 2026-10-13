@@ -5,7 +5,8 @@ switch's own web UI over HTTP(S), since the switch has no API.
 
 - **Resources:** `hpe1810_port`, `hpe1810_locator`, `hpe1810_green_features`,
   `hpe1810_system_description`, `hpe1810_time_zone`, `hpe1810_daylight_saving_time`,
-  `hpe1810_lldp_configuration`, `hpe1810_flow_control`, `hpe1810_port_mirroring`, `hpe1810_trunk`
+  `hpe1810_lldp_configuration`, `hpe1810_flow_control`, `hpe1810_port_mirroring`, `hpe1810_trunk`,
+  `hpe1810_sntp`
 - **Data sources:** `system_description`, `network_setup`, `port_summary`, `lldp_statistics`,
   `buffered_log`, `mac_table`, `trunk_status`, `loop_protection_status`, `dual_image_status`,
   `clock`, `sntp`, `log_configuration`, `backup_manager`
@@ -22,7 +23,7 @@ terraform {
   required_providers {
     hpe1810 = {
       source  = "registry.phirna.uk/phirna/hpe1810"
-      version = "~> 0.1"
+      version = "~> 1.1"
     }
   }
 }
@@ -33,6 +34,17 @@ provider "hpe1810" {
   password            = var.password   # or HPE1810_PASSWORD
   save_running_config = false          # or HPE1810_SAVE_RUNNING_CONFIG
   admin_port          = 24             # never written to (uplink/management guard)
+}
+```
+
+```hcl
+# One unicast NTP server, IPv4 literal only (the switch takes no hostnames).
+# Delete sets SNTP to Disabled.
+resource "hpe1810_sntp" "switch" {
+  mode   = "Unicast"       # or "Disabled"
+  server = "194.58.200.20" # Netnod anycast (ntp.se)
+  # port        = 123       (default)
+  # time_format = "24 Hour" (default)
 }
 ```
 

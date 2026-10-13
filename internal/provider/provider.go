@@ -190,5 +190,6 @@ func (p *hpe1810Provider) Resources(_ context.Context) []func() resource.Resourc
 		NewFlowControlResource,
 		NewPortMirroringResource,
 		NewTrunkResource,
+		NewSNTPResource,
 	}
 }
