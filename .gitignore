@@ -1,0 +1,4 @@
+# Built binaries never go in git -- releases are built by goreleaser and
+# uploaded to the registry (see README.md).
+/terraform-provider-hpe1810
+/dist/
