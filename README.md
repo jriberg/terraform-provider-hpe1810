@@ -66,16 +66,19 @@ Skip `tofu init` with dev_overrides and go straight to `tofu plan`.
 
 ## Releasing
 
-Binaries are never committed. A release is built by goreleaser, GPG-signed and uploaded to the
-registry:
+Binaries are never committed. `scripts/release.sh` does the whole flow. It tags and pushes, unlocks the
+GPG key, builds and signs with goreleaser, uploads `signing-keys.json`, uploads to boring-registry and
+checks that the version is listed:
 
 ```bash
-git tag v0.1.0 && git push origin v0.1.0
-GPG_FINGERPRINT=<fpr> GITHUB_TOKEN=<pat> goreleaser release --clean
-# then: boring-registry upload provider --namespace phirna \
-#   --filename-sha256sums $PWD/dist/terraform-provider-hpe1810_0.1.0_SHA256SUMS ...
+scripts/release.sh 1.0.1                       # new release from a clean, pushed main
+UPLOAD_ONLY=true scripts/release.sh 1.0.0      # tag + dist/ already exist; just upload
+PUBLISH_GITHUB=true GITHUB_TOKEN=<pat> scripts/release.sh 1.0.1   # also create a GitHub release
 ```
 
-The full flow (signing key, `signing-keys.json`, upload flags) is in ohana's
-`nomad/boring-registry.md`.
+Requirements: `git gpg goreleaser vault aws docker dig curl`, and a logged-in Vault (S3 key and API
+token come from `secret/nomad/boring-registry`). S3 credentials are passed per command and never
+exported, because tofu's S3 backend reads the same `AWS_*` variables.
+
+Background and setup are in ohana's `nomad/boring-registry.md`.
 `terraform-registry-manifest.json` declares plugin protocol 6.0 (terraform-plugin-framework).
